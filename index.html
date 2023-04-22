@@ -3,59 +3,32 @@
 <head>
     <title>My Sales Tracker</title>
     <style>
-         body {
+        body {
     font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-  }
-  a {
-    display: inline-block;
-    padding: 10px;
+    margin: 20px;
+}
+
+a {
+    color: #1a73e8;
     text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+button {
+    background-color: #1a73e8;
     color: white;
-    background-color: #333;
-    border-radius: 5px;
-    margin-right: 10px;
-  }
-  a:hover {
-    background-color: #555;
-  }
-  h1, h3 {
-    margin: 0;
-    padding: 20px;
-  }
-  h1 {
-    background-color: #333;
-    color: white;
-  }
-  h3 {
-    background-color: #eee;
-  }
-  #filters, #addSaleForm, #totalProfitContainer {
-    padding: 20px;
-  }
-  #salesTable {
-    border-collapse: collapse;
-    width: 100%;
-  }
-  #salesTable th, #salesTable td {
-    border: 1px solid #ddd;
-    padding: 8px;
-  }
-  #salesTable tr:nth-child(even) {
-    background-color: #f2f2f2;
-  }
-  input[type="submit"] {
-    background-color: #4CAF50;
-    color: white;
-    padding: 12px 20px;
     border: none;
+    padding: 10px 20px;
     border-radius: 4px;
     cursor: pointer;
-  }
-  input[type="submit"]:hover {
-    background-color: #45a049;
-  }
+}
+
+button:hover {
+    background-color: #1666c5;
+}
 @media print {
     body * {
         visibility: hidden;
@@ -75,37 +48,48 @@ visibility: visible;
         
     }
 }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        th, td {
-            text-align: left;
-            padding: 8px;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-.pagination {
-    display: inline-block;
-    margin-top: 10px;
+        input[type="date"],
+input[type="text"] {
+    padding: 6px 10px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 4px;
 }
 
-.pagination a, .pagination button {
-    color: black;
-    float: left;
-    padding: 8px 16px;
-    text-decoration: none;
-    border: 1px solid #ddd;
+input[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
-.pagination a:hover:not(.active), .pagination button:hover:not(.active) {
-    background-color: #ddd;
+input[type="submit"]:hover {
+    background-color: #45a049;
 }
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th,
+td {
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2
+}
+
+th {
+    background-color: #4CAF50;
+    color: white;
+}
+       
     </style>
 </head>
 <body>
