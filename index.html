@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Sales Tracker</title>
+    <style>
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+#filters, {
+visibility: visible;
+}
+
+h3{
+visibility: visible;
+}
+    #salesTable, #salesTable * {
+        visibility: visible;
+    }
+    #salesTable {
+        
+    }
+}
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            text-align: left;
+            padding: 8px;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+.pagination {
+    display: inline-block;
+    margin-top: 10px;
+}
+
+.pagination a, .pagination button {
+    color: black;
+    float: left;
+    padding: 8px 16px;
+    text-decoration: none;
+    border: 1px solid #ddd;
+}
+
+.pagination a:hover:not(.active), .pagination button:hover:not(.active) {
+    background-color: #ddd;
+}
+    </style>
+</head>
+<body>
+<a href="./index.html"/>Sales Tracker</a>
+<a href="./dataanalyzer.html"/>Data analyzer</a>
+<a href="./jsonviewer.html"/>Json Viewer</a>
+<a href="./statistics.html"/>Statistics</a>
+
+<button onclick="printTable()">Print Table</button>
+
+    <h1>My Sales Tracker</h1>
+
+    <h3>Date Filter:</h3>
+
+    <div id="filters">Start Date: <input type="date" id="startDate"><br><br>
+    End Date: <input type="date" id="endDate"><br><br>
+    <button onclick="updateTable()">Apply Filter</button><br><br></div>
+
+    <table id="salesTable">
+        <tr>
+            <th>Item</th>
+            <th>Cost (zł)</th>
+            <th>Price (zł)</th>
+            <th>Date Sold</th>
+        </tr>
+    </table>
+
+    <h3>Add a Sale:</h3>
+    <form id="addSaleForm">
+        Item: <input type="text" id="itemInput"><br><br>
+        Cost: <input type="text" id="costInput"><br><br>
+        Price: <input type="text" id="priceInput"><br><br>
+        Date Sold: <input type="date" id="dateInput"><br><br>
+        <input type="submit" value="Submit">
+    </form>
+
+<div id="totalProfitContainer">
+    <h3>Total Profit:</h3>
+    <p id="totalProfit"></p>
+</div>
+
+<h3>Sales Chart:</h3>
+<canvas id="salesChart"></canvas>
+
+<h3>Statistics:</h3>
+<ul>
+    <li>Total Sales: <span id="totalSales"></span></li>
+    <li>Average Sale Price: <span id="averageSalePrice"></span></li>
+    <li>Highest Sale Price: <span id="highestSalePrice"></span></li>
+    <li>Lowest Sale Price: <span id="lowestSalePrice"></span></li>
+</ul>
+
+    <h3>Import/Export:</h3>
+    <button onclick="exportData()">Export Data</button><br><br>
+    <textarea id="importData"></textarea><br><br>
+    <button onclick="importData()">Import Data</button>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        var sales = JSON.parse(localStorage.getItem("sales")) || [];
+
+        function updateTable() {
+            var startDate = document.getElementById("startDate").value;
+            var endDate = document.getElementById("endDate").value;
+
+            var table = document.getElementById("salesTable");
+            var rowCount = table.rows.length;
+            for (var i = rowCount - 1; i > 0; i--) {
+                table.deleteRow(i);
+            }
+
+            var totalEarnings = 0;
+            var totalCost = 0;
+            for (var i = 0; i < sales.length; i++) {
+                if ((!startDate || sales[i].date >= startDate) && (!endDate || sales[i].date <= endDate)) {
+                    var row = table.insertRow(-1);
+                    var cell1 = row.insertCell(0);
+                    var cell2 = row.insertCell(1);
+                    var cell3 = row.insertCell(2);
+                    var cell4 = row.insertCell(3);
+                    cell1.innerHTML = sales[i].item;
+                    cell2.innerHTML = sales[i].cost;
+                    cell3.innerHTML = sales[i].price;
+                    cell4.innerHTML = sales[i].date;
+
+                    totalEarnings += parseFloat(sales[i].price);
+                    totalCost += parseFloat(sales[i].cost);
+                }
+            }
+
+            var totalProfit = totalEarnings - totalCost;
+            document.getElementById("totalProfit").innerHTML = totalProfit.toFixed(2);
+        }
+
+        updateTable();
+
+        document.getElementById("addSaleForm").onsubmit = function(event) {
+            event.preventDefault();
+            var item = document.getElementById("itemInput").value;
+            var cost = document.getElementById("costInput").value;
+            var price = document.getElementById("priceInput").value;
+            var date = document.getElementById("dateInput").value;
+
+            sales.push({item: item, cost: cost, price: price, date: date});
+            localStorage.setItem("sales", JSON.stringify(sales));
+
+            updateTable();
+
+            document.getElementById("itemInput").value = "";
+            document.getElementById("costInput").value = "";
+          document.getElementById("priceInput").value = "";
+            document.getElementById("dateInput").value = "";
+        }
+
+        function exportData() {
+            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(sales));
+            var downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "sales.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function importData() {
+            var data = JSON.parse(document.getElementById("importData").value);
+            sales = data;
+            localStorage.setItem("sales", JSON.stringify(sales));
+            updateTable();
+        }
+function printTable() {
+    var startDate = document.getElementById("startDate").value;
+    var endDate = document.getElementById("endDate").value;
+
+    var printContents = "<h3>Date Filter:</h3>";
+    printContents += "Start Date: " + startDate + "<br>";
+    printContents += "End Date: " + endDate + "<br><br>";
+    printContents += document.getElementById("salesTable").outerHTML;
+var totalProfit = document.getElementById("totalProfit").innerHTML;
+
+    
+    printContents += "<h3>Total Profit: </h3>" + totalProfit + "zł";
+
+
+
+    var originalContents = document.body.innerHTML;
+
+    document.body.innerHTML = printContents;
+    window.print();
+    document.body.innerHTML = originalContents;
+}
+
+function updateStatistics() {
+    var totalSales = sales.length;
+    document.getElementById("totalSales").innerHTML = totalSales;
+
+    var totalSalePrice = 0;
+    var highestSalePrice = 0;
+    var lowestSalePrice = Infinity;
+    for (var i = 0; i < sales.length; i++) {
+        var salePrice = parseFloat(sales[i].price);
+        totalSalePrice += salePrice;
+        if (salePrice > highestSalePrice) {
+            highestSalePrice = salePrice;
+        }
+        if (salePrice < lowestSalePrice) {
+            lowestSalePrice = salePrice;
+        }
+    }
+
+    var averageSalePrice = totalSales > 0 ? (totalSalePrice / totalSales).toFixed(2) : 0;
+    document.getElementById("averageSalePrice").innerHTML = averageSalePrice;
+
+    document.getElementById("highestSalePrice").innerHTML = highestSalePrice;
+    document.getElementById("lowestSalePrice").innerHTML = lowestSalePrice == Infinity ? 0 : lowestSalePrice;
+}
+
+updateStatistics();
+function updateChart() {
+    var salesData = {};
+    for (var i = 0; i < sales.length; i++) {
+        var date = new Date(sales[i].date);
+        var month = date.toLocaleString('default', { month: 'long' });
+        if (salesData[month]) {
+            salesData[month] += parseFloat(sales[i].price);
+        } else {
+            salesData[month] = parseFloat(sales[i].price);
+        }
+    }
+
+    var ctx = document.getElementById('salesChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(salesData),
+            datasets: [{
+                label: 'Total Sales',
+                data: Object.values(salesData),
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+updateChart();
+function addToggleTableButton() {
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        const button = document.createElement('button');
+        button.textContent = 'Hide/Show Table';
+        button.onclick = function() {
+            if (table.style.display === 'none') {
+                table.style.display = '';
+            } else {
+                table.style.display = 'none';
+            }
+        };
+        table.parentNode.insertBefore(button, table);
+    });
+}
+
+window.onload = function() {
+    addToggleTableButton();
+};
+    </script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    h1 {
+      color: #333;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      text-align: left;
+      padding: 8px;
+    }
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+    th {
+      background-color: #333;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+<a href="./index.html"/>Sales Tracker</a>
+<a href="./dataanalyzer.html"/>Data analyzer</a>
+<a href="./jsonviewer.html"/>Json Viewer</a>
+<a href="./statistics.html"/>Statistics</a>
+<h1>Data Analyzer</h1>
+
+<h3>Import:</h3>
+<input type="file" id="importFile" accept=".json"><br><br>
+<button onclick="importData()">Import Data</button><br><br>
+
+<h3>Search:</h3>
+<select id="searchColumn">
+  <option value="item">Item</option>
+  <option value="cost">Cost</option>
+  <option value="price">Price</option>
+  <option value="date">Date Sold</option>
+</select><br><br>
+<input type="text" id="searchInput" placeholder="Search...">
+<button onclick="search()">Search</button><br><br>
+
+<table id="dataTable">
+  <tr>
+    <th>Item</th>
+    <th>Cost (zł)</th>
+    <th>Price (zł)</th>
+    <th>Date Sold</th>
+  </tr>
+</table>
+
+<h3>Edit:</h3>
+<form id="editForm" onsubmit="event.preventDefault(); edit();">
+  Item: <input type="text" id="editItemInput"><br><br>
+  Cost: <input type="text" id="editCostInput"><br><br>
+  Price: <input type="text" id="editPriceInput"><br><br>
+  Date Sold: <input type="date" id="editDateInput"><br><br>
+  <input type="submit" value="Save Changes"><br><br>
+</form>
+
+<button onclick="deleteItem()">Delete Item</button><br><br>
+
+<button onclick="exportData()">Export Data</button><br><br>
+
+<script>
+  let data = [];
+  let selectedRow = null;
+
+  function importData() {
+    let importFile = document.getElementById("importFile").files[0];
+    if (importFile) {
+      let reader = new FileReader();
+      reader.onload = function(e) {
+        data = JSON.parse(e.target.result);
+        search();
+      };
+      reader.readAsText(importFile);
+    }
+  }
+
+  function search() {
+    let searchColumn = document.getElementById("searchColumn").value;
+    let searchInput = document.getElementById("searchInput").value;
+    let dataTable = document.getElementById("dataTable");
+    dataTable.innerHTML = "<tr><th>Item</th><th>Cost (zł)</th><th>Price (zł)</th><th>Date Sold</th></tr>";
+    for (let i = 0; i < data.length; i++) {
+      if (data[i][searchColumn].toString().toLowerCase().includes(searchInput.toLowerCase())) {
+        let row = dataTable.insertRow(-1);
+        row.insertCell(0).innerHTML = data[i].item;
+        row.insertCell(1).innerHTML = data[i].cost;
+        row.insertCell(2).innerHTML = data[i].price;
+        row.insertCell(3).innerHTML = data[i].date;
+        row.onclick = function() {
+          selectedRow = this.rowIndex - 1;
+          document.getElementById("editItemInput").value = data[selectedRow].item;
+          document.getElementById("editCostInput").value = data[selectedRow].cost;
+          document.getElementById("editPriceInput").value = data[selectedRow].price;
+          document.getElementById("editDateInput").value = data[selectedRow].date;
+        };
+      }
+    }
+  }
+
+  function edit() {
+    if (selectedRow !== null) {
+      data[selectedRow].item = document.getElementById("editItemInput").value;
+      data[selectedRow].cost = document.getElementById("editCostInput").value;
+      data[selectedRow].price = document.getElementById("editPriceInput").value;
+      data[selectedRow].date = document.getElementById("editDateInput").value;
+      search();
+    }
+  }
+
+  function deleteItem() {
+    if (selectedRow !== null) {
+      data.splice(selectedRow, 1);
+      selectedRow = null;
+      search();
+    }
+  }
+  function exportData() {
+    let exportData = JSON.stringify(data);
+    let a = document.createElement("a");
+    let file = new Blob([exportData], {type: "application/json"});
+    a.href = URL.createObjectURL(file);
+    a.download = "data.json";
+    a.click();
+  }
+</script>
+
+</body>
+</html>

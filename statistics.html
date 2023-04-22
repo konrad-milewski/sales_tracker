@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Charts Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<a href="./index.html"/>Sales Tracker</a>
+<a href="./dataanalyzer.html"/>Data analyzer</a>
+<a href="./jsonviewer.html"/>Json Viewer</a>
+<a href="./statistics.html"/>Statistics</a>
+<button id="print">Print</button>
+
+    <h1>Charts Example</h1>
+    <input type="file" id="input" onchange="loadFile(event)">
+    <br><br>
+    <canvas id="bar-chart" width="400" height="200"></canvas>
+    <canvas id="pie-chart" width="400" height="200"></canvas>
+    <canvas id="line-chart" width="400" height="200"></canvas>
+    <br><br>
+    <table id="stats-table" border="1">
+        <tr>
+            <th>Item</th>
+            <th>Cost</th>
+            <th>Price</th>
+            <th>Profit</th>
+        </tr>
+    </table>
+
+    <script>
+        function loadFile(event) {
+            const input = event.target;
+            const reader = new FileReader();
+            reader.onload = function() {
+                const text = reader.result;
+                const data = JSON.parse(text);
+                displayCharts(data);
+                displayStats(data);
+            };
+            reader.readAsText(input.files[0]);
+        }
+
+        function displayCharts(data) {
+            const items = data.map(obj => obj.item);
+            const costs = data.map(obj => obj.cost);
+            const prices = data.map(obj => obj.price);
+            const profits = data.map(obj => obj.price - obj.cost);
+
+            new Chart(document.getElementById('bar-chart'), {
+                type: 'bar',
+                data: {
+                    labels: items,
+                    datasets: [
+                        {
+                            label: 'Cost',
+                            data: costs,
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Price',
+                            data: prices,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('pie-chart'), {
+                type: 'pie',
+                data: {
+                    labels: items,
+                    datasets: [
+                        {
+                            label: 'Cost',
+                            data: costs,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)'
+                            ],
+                            borderWidth: 1
+                        }
+                    ]
+                }
+            });
+
+            new Chart(document.getElementById('line-chart'), {
+                type: 'line',
+                data: {
+                    labels: items,
+                    datasets: [
+                        {
+                            label: 'Profit',
+                            data: profits,
+                            fill: false,
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1
+                        }
+                    ]
+                }
+            });
+        }
+
+        function displayStats(data) {
+            const table = document.getElementById('stats-table');
+            for (const obj of data) {
+                const row = table.insertRow(-1);
+                row.insertCell(-1).textContent = obj.item;
+                row.insertCell(-1).textContent = obj.cost;
+                row.insertCell(-1).textContent = obj.price;
+                row.insertCell(-1).textContent = obj.price - obj.cost;
+            }
+        }
+document.getElementById('print').onclick = function() {
+    window.print();
+}
+    </script>
+</body>
+</html>

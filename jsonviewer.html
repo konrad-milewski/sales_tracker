@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        #input {
+            margin: 10px;
+        }
+        #output {
+            margin: 10px;
+            width: 300px;
+            height: 200px;
+        }
+        #copy, #export, #remove-duplicates {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+<a href="./index.html"/>Sales Tracker</a>
+<a href="./dataanalyzer.html"/>Data analyzer</a>
+<a href="./jsonviewer.html"/>Json Viewer</a>
+<a href="./statistics.html"/>Statistics</a>
+    <input type="file" id="input" onchange="loadFile(event)">
+    <br>
+    <textarea id="output"></textarea>
+    <br>
+    <button id="copy">Copy</button>
+    <button id="remove-duplicates">Remove Duplicates</button>
+    <button id="export">Export</button>
+
+    <script>
+        function loadFile(event) {
+            const input = event.target;
+            const reader = new FileReader();
+            reader.onload = function() {
+                const text = reader.result;
+                document.getElementById('output').textContent = text;
+            };
+            reader.readAsText(input.files[0]);
+        }
+
+        document.getElementById('copy').onclick = function() {
+            const output = document.getElementById('output');
+            output.select();
+            document.execCommand('copy');
+        }
+
+        document.getElementById('remove-duplicates').onclick = function() {
+            let text = document.getElementById('output').value;
+            try {
+                const data = JSON.parse(text);
+                if (Array.isArray(data)) {
+                    text = JSON.stringify(removeDuplicates(data));
+                    document.getElementById('output').value = text;
+                }
+            } catch (e) {}
+        }
+
+        document.getElementById('export').onclick = function() {
+            const text = document.getElementById('output').value;
+            const blob = new Blob([text], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'data.json';
+            a.click();
+        }
+
+        function removeDuplicates(arr) {
+            const set = new Set();
+            return arr.filter(obj => {
+                const key = JSON.stringify(obj);
+                const isDuplicate = set.has(key);
+                set.add(key);
+                return !isDuplicate;
+            });
+        }
+    </script>
+</body>
+</html>
